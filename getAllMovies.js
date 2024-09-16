@@ -1,7 +1,8 @@
 // This file is used to fetch the names of the movies from all the locations where BMS provies their services
 
-//Global variables
+//Imports
 import puppeteer from 'puppeteer';
+import {gotoUrl, closeBrowser} from './lib/commonFunctions.js';
 
 /*This function is used to get list of movie names, links and posters based on the Base Location of the Movie Language
 Ex: Kannada -> Bengaluru */
@@ -14,9 +15,7 @@ async function getAllMovies(){
     var url = "https://in.bookmyshow.com/explore/"+type+"-"+location+"?languages="+language.toLowerCase();
     console.log("Fecthing: "+url);
     var browser = await puppeteer.launch({headless:true});
-    const page = await browser.newPage();
-    await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36');
-    await page.goto(url, { waitUntil: 'networkidle2' });
+    var page = await gotoUrl(url, browser);
     
 
     //Extract List of Movies running in the Particular location
@@ -41,7 +40,8 @@ async function getAllMovies(){
             movieMap.set(movieName, {movieLink, movieName, moviePoster})
         }
       }
-    await browser.close();
+    await closeBrowser(browser);
+    console.log(movieMap);
     return movieMap;
   }catch(e){
     console.log("Error in fetching all movies: "+e);
