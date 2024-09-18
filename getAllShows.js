@@ -8,29 +8,30 @@ import { closeBrowser, gotoUrl } from "./lib/commonFunctions.js";
 var movieLink = "https://in.bookmyshow.com/bengaluru/movies/ibbani-tabbida-ileyali/ET00348158";
 
 async function getAllShows(movieLink) {
+  try{
     console.log("Fecthing: "+movieLink);
     var browser = await puppeteer.launch({headless:true});
     var page = await gotoUrl(movieLink, browser);
 
     //Click on Book tickets button to fetch all available shows for the day
-    await page.evaluate(() => {
-        const spans = Array.from(document.querySelectorAll('span'));
-        const targetSpan = spans.find(span => span.textContent.trim() === 'Book tickets');
-        if (targetSpan) {
-          targetSpan.click();
-        }
-      });
+    var [bookTicketsElement] = await page.$('*//button[@data-phase="postRelease"]');
+    if(bookTicketsElement){
+      bookTicketsElement[0].click();
+    }
       //Get Date and Day
-      var [element] = await page.$$('//div[@class="date-numeric"]');
+      var [element] = await page.$x('//div[@class="date-numeric"]');
       if (element) {
         var text = await page.evaluate(el => el.textContent.trim(), element);
         console.log(text);  // Output the extracted text
       }
-      var [element] = await page.$$('//div[@class="date-month"]');
+      var [element] = await page.$x('//div[@class="date-month"]');
       if (element) {
         var text = await page.evaluate(el => el.textContent.trim(), element);
         console.log(text);  // Output the extracted text
       }
+    }catch(e){
+      console.log("Error in getting all shows: "+e);
+    }
     
 
 }
